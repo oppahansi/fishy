@@ -5,14 +5,11 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
 
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="532.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
-fx:controller="Controller">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#onKeyPressed" prefHeight="532.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
    <children>
       <Pane fx:id="colorSettingsPane" layoutX="376.0" layoutY="14.0" prefHeight="461.0" prefWidth="410.0" style="-fx-border-color: #000000; -fx-background-color: #a3a3a3;">
          <children>
@@ -36,29 +33,29 @@ fx:controller="Controller">
       <Pane fx:id="generalSettingsPane" layoutX="14.0" layoutY="14.0" prefHeight="461.0" prefWidth="355.0" style="-fx-background-color: #a3a3a3; -fx-border-color: #000000;">
          <children>
             <Label alignment="CENTER_RIGHT" layoutX="119.0" layoutY="34.0" text="Fishing Hotkey:" />
-            <TextField fx:id="fishingHotkey" alignment="CENTER" layoutX="207.0" layoutY="30.0" prefHeight="25.0" prefWidth="26.0" text="1" />
+            <TextField fx:id="fishingHotkey" alignment="CENTER" layoutX="235.0" layoutY="29.0" prefHeight="25.0" prefWidth="26.0" text="1" />
             <Label alignment="CENTER_RIGHT" layoutX="136.0" layoutY="65.0" text="Buff Hotkey:" />
-            <TextField fx:id="buffHotkey" alignment="CENTER" layoutX="207.0" layoutY="61.0" prefHeight="25.0" prefWidth="26.0" text="2" />
+            <TextField fx:id="buffHotkey" alignment="CENTER" layoutX="235.0" layoutY="60.0" prefHeight="25.0" prefWidth="26.0" text="2" />
             <Label alignment="CENTER_RIGHT" layoutX="118.0" layoutY="96.0" text="Sample Hotkey:" />
-            <TextField fx:id="sampleHotkey" alignment="CENTER" layoutX="207.0" layoutY="92.0" prefHeight="25.0" prefWidth="26.0" text="S" />
+            <TextField fx:id="sampleHotkey" alignment="CENTER" layoutX="235.0" layoutY="91.0" prefHeight="25.0" prefWidth="26.0" text="S" />
             <Label alignment="CENTER_RIGHT" layoutX="88.0" layoutY="127.0" text="Bobber Color Hotkey:" />
-            <TextField fx:id="bobberColorHotkey" alignment="CENTER" layoutX="207.0" layoutY="123.0" prefHeight="25.0" prefWidth="26.0" text="D" />
+            <TextField fx:id="bobberColorHotkey" alignment="CENTER" layoutX="235.0" layoutY="122.0" prefHeight="25.0" prefWidth="26.0" text="D" />
             <Label alignment="CENTER_RIGHT" layoutX="105.0" layoutY="158.0" text="Bite Color Hotkey:" />
-            <TextField fx:id="biteColorHotkey" alignment="CENTER" layoutX="207.0" layoutY="154.0" prefHeight="25.0" prefWidth="26.0" text="F" />
+            <TextField fx:id="biteColorHotkey" alignment="CENTER" layoutX="235.0" layoutY="153.0" prefHeight="25.0" prefWidth="26.0" text="F" />
             <Label alignment="CENTER_RIGHT" layoutX="43.0" layoutY="189.0" text="Fishing Duration (in seconds):" />
-            <TextField fx:id="fishingDuration" alignment="CENTER" layoutX="207.0" layoutY="185.0" prefHeight="25.0" prefWidth="35.0" text="26" />
+            <TextField fx:id="fishingDuration" alignment="CENTER" layoutX="235.0" layoutY="184.0" prefHeight="25.0" prefWidth="35.0" text="26" />
             <Label alignment="CENTER_RIGHT" layoutX="61.0" layoutY="220.0" text="Search Delay (in seconds):" />
-            <TextField fx:id="searchDelay" alignment="CENTER" layoutX="207.0" layoutY="216.0" prefHeight="25.0" prefWidth="35.0" text="2" />
-            <CheckBox fx:id="useBuff" layoutX="207.0" layoutY="278.0" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" />
+            <TextField fx:id="searchDelay" alignment="CENTER" layoutX="235.0" layoutY="215.0" prefHeight="25.0" prefWidth="35.0" text="2" />
+            <CheckBox fx:id="useBuff" layoutX="235.0" layoutY="277.0" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" />
             <Label alignment="CENTER_RIGHT" layoutX="143.0" layoutY="278.0" text="Use Buff?" />
-            <CheckBox fx:id="shiftLoot" layoutX="207.0" layoutY="247.0" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" />
+            <CheckBox fx:id="shiftLoot" layoutX="235.0" layoutY="246.0" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" />
             <Label alignment="CENTER_RIGHT" layoutX="140.0" layoutY="247.0" text="Shift Loot?" />
-            <TextField fx:id="buffDuration" alignment="CENTER" layoutX="207.0" layoutY="309.0" prefHeight="25.0" prefWidth="35.0" text="10" />
+            <TextField fx:id="buffDuration" alignment="CENTER" layoutX="235.0" layoutY="308.0" prefHeight="25.0" prefWidth="35.0" text="10" />
             <Label alignment="CENTER_RIGHT" layoutX="60.0" layoutY="313.0" text="Buff Duration (in minutes):" />
             <Label alignment="CENTER_RIGHT" layoutX="138.0" layoutY="344.0" text="Buff Count:" />
-            <TextField fx:id="buffCount" alignment="CENTER" layoutX="206.0" layoutY="340.0" prefHeight="25.0" prefWidth="35.0" text="10" />
-            <Button layoutX="53.0" layoutY="388.0" mnemonicParsing="false" prefHeight="44.0" prefWidth="114.0" text="Fishy" />
-            <Button layoutX="214.0" layoutY="393.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="75.0" text="Close" />
+            <TextField fx:id="buffCount" alignment="CENTER" layoutX="234.0" layoutY="339.0" prefHeight="25.0" prefWidth="35.0" text="10" />
+            <Button fx:id="startButton" layoutX="53.0" layoutY="388.0" mnemonicParsing="false" prefHeight="44.0" prefWidth="114.0" text="Fishy" />
+            <Button fx:id="closeButton" layoutX="214.0" layoutY="393.0" mnemonicParsing="false" onAction="#onCloseButtonPressed" prefHeight="35.0" prefWidth="75.0" text="Close" />
          </children>
       </Pane>
       <Label fx:id="warnErrorMessage" layoutX="29.0" layoutY="492.0" opacity="0.0" text="Warning or Error message here" textFill="#bf0000" />

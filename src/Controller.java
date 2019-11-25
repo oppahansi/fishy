@@ -1,9 +1,12 @@
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
+
+import java.awt.event.ActionListener;
 
 public class Controller {
     public Pane colorSettingsPane;
@@ -27,8 +30,32 @@ public class Controller {
     public CheckBox shiftLoot;
     public TextField buffDuration;
     public TextField buffCount;
+    public Button startButton;
+    public Button closeButton;
 
     public Label warnErrorMessage;
 
+    @FXML
+    public void onCloseButtonPressed(ActionEvent actionEvent) {
+        exit();
+    }
 
+    @FXML
+    public void onKeyPressed(KeyEvent keyEvent) {
+        if (keyEvent == null || keyEvent.getCode() == null)
+            return;
+
+        KeyCode keyCode = keyEvent.getCode();
+
+        if (keyCode == KeyCode.ESCAPE) {
+            exit();
+        } else if (keyCode == KeyCode.S) {
+
+        }
+    }
+
+    private void exit() {
+        // do stuff before exit
+        System.exit(1);
+    }
 }

@@ -5,6 +5,9 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class Main extends Application {
+    public static void main(String[] args) {
+        launch(args);
+    }
 
     @Override
     public void start(Stage stage) throws Exception{
@@ -12,10 +15,8 @@ public class Main extends Application {
 
         stage.setTitle(Utils.getRandomString());
         stage.setScene(new Scene(root, 800, 532));
-        stage.show();
-    }
 
-    public static void main(String[] args) {
-        launch(args);
+
+        stage.show();
     }
 }
