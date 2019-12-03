@@ -1,7 +1,6 @@
-import javafx.application.Platform;
+import javafx.animation.AnimationTimer;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,7 +13,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
@@ -52,13 +50,14 @@ public class MainController {
 
     public Label warnErrorMessage;
     public AnchorPane mainStage;
+    public ImageView debugImage;
 
     private Stage searchStage;
 
     private double xOffset = 0;
     private double yOffset = 0;
     private boolean fishing;
-    private boolean buffing;
+    private double  buffing;
 
     @FXML
     public void initialize() {
@@ -71,42 +70,7 @@ public class MainController {
 
             startButton.setText("Fishy");
         } else {
-            try {
-                Parent root = FXMLLoader.load(getClass().getResource("SearchArea.fxml"));
-
-                searchStage = new Stage();
-                searchStage.initModality(Modality.NONE);
-                searchStage.setTitle(Utils.getRandomString());
-
-                Scene scene = new Scene(root);
-                scene.setFill(javafx.scene.paint.Color.gray(0.25, 0.25));
-                scene.setOnKeyPressed(keyEvent -> {
-                    if (keyEvent.getCode() == KeyCode.ESCAPE) {
-                        stopFishing();
-                        searchStage.close();
-                    }
-                });
-
-                scene.setOnMouseClicked(mouseEvent -> {
-                    if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
-                        if(mouseEvent.getClickCount() == 2){
-                            searchStage.toBack();
-                            startFishing();
-                        }
-                    }
-                });
-
-                searchStage.initStyle(StageStyle.TRANSPARENT);
-                searchStage.setScene(scene);
-
-                ((Stage)((Button)actionEvent.getSource()).getScene().getWindow()).setIconified(true);
-                searchStage.show();
-
-                ResizeHelper.addResizeListener(searchStage);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
+            makeSearchStage(actionEvent);
             startButton.setText("Stop");
         }
     }
@@ -163,6 +127,44 @@ public class MainController {
         }
     }
 
+    private void makeSearchStage(ActionEvent actionEvent) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("SearchArea.fxml"));
+
+            searchStage = new Stage();
+            searchStage.initModality(Modality.NONE);
+            searchStage.setTitle(Utils.getRandomString());
+
+            Scene scene = new Scene(root);
+            scene.setFill(javafx.scene.paint.Color.gray(0.25, 0.25));
+            scene.setOnKeyPressed(keyEvent -> {
+                if (keyEvent.getCode() == KeyCode.ESCAPE) {
+                    stopFishing();
+                    searchStage.close();
+                }
+            });
+
+            scene.setOnMouseClicked(mouseEvent -> {
+                if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
+                    if(mouseEvent.getClickCount() == 2){
+                        searchStage.toBack();
+                        startFishing();
+                    }
+                }
+            });
+
+            searchStage.initStyle(StageStyle.TRANSPARENT);
+            searchStage.setScene(scene);
+
+            ((Stage)((Button)actionEvent.getSource()).getScene().getWindow()).setIconified(true);
+            searchStage.show();
+
+            ResizeHelper.addResizeListener(searchStage);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void exit() {
         // do stuff before exit
         System.exit(1);
@@ -171,10 +173,34 @@ public class MainController {
     private void startFishing() {
         fishing = true;
 
+        final long startNanoTime = System.nanoTime();
+
+        new AnimationTimer()
+        {
+            private float lastUpdate = System.nanoTime();
+
+            public void handle(long now) {
+                float elapsedMilliSeconds = (now - lastUpdate) / 1000000.0f;
+                float fpsTime = 100;
+
+                if  (!fishing) stop();
+
+                if (elapsedMilliSeconds >= fpsTime) {
+                    try {
+                        Robot robot = new Robot();
+                        Rectangle captureRect = new Rectangle((int)searchStage.getX(), (int)searchStage.getY(), (int)searchStage.getWidth(), (int)searchStage.getHeight());
+                        BufferedImage sampleImageCaptured = robot.createScreenCapture(captureRect);
+                        debugImage.setImage(SwingFXUtils.toFXImage(sampleImageCaptured, null));
+                    } catch (AWTException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }.start();
     }
 
     private void stopFishing() {
         fishing = false;
-        buffing = false;
+        //buffing = false;
     }
 }

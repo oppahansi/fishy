@@ -132,7 +132,6 @@ public class ResizeHelper {
                             if (stage.getHeight() > minHeight || mouseEventY < 0) {
                                 setStageHeight(stage.getY() - mouseEvent.getScreenY() + stage.getHeight());
                                 stage.setY(mouseEvent.getScreenY());
-                                System.out.println("Fuckyou Y");
                             }
                         } else {
                             if (stage.getHeight() > minHeight || mouseEventY + startY - stage.getHeight() > 0) {
@@ -147,7 +146,6 @@ public class ResizeHelper {
                                 || Cursor.SW_RESIZE.equals(cursorEvent)) {
                             if (stage.getWidth() > minWidth || mouseEventX < 0) {
                                 setStageWidth(stage.getX() - mouseEvent.getScreenX() + stage.getWidth());
-                                System.out.println("Fuckyou X");
                                 stage.setX(mouseEvent.getScreenX());
                             }
                         } else {
