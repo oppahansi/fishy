@@ -175,28 +175,28 @@ public class MainController {
 
         final long startNanoTime = System.nanoTime();
 
-        new AnimationTimer()
-        {
-            private float lastUpdate = System.nanoTime();
+        try {
+            new AnimationTimer()
+            {
+                private float lastUpdate = System.nanoTime();
+                Robot robot = new Robot();
 
-            public void handle(long now) {
-                float elapsedMilliSeconds = (now - lastUpdate) / 1000000.0f;
-                float fpsTime = 100;
+                public void handle(long now) {
+                    float elapsedMilliSeconds = (now - lastUpdate) / 1000000.0f;
+                    float fpsTime = 100;
 
-                if  (!fishing) stop();
+                    if  (!fishing) stop();
 
-                if (elapsedMilliSeconds >= fpsTime) {
-                    try {
-                        Robot robot = new Robot();
+                    if (elapsedMilliSeconds >= fpsTime) {
                         Rectangle captureRect = new Rectangle((int)searchStage.getX(), (int)searchStage.getY(), (int)searchStage.getWidth(), (int)searchStage.getHeight());
                         BufferedImage sampleImageCaptured = robot.createScreenCapture(captureRect);
                         debugImage.setImage(SwingFXUtils.toFXImage(sampleImageCaptured, null));
-                    } catch (AWTException e) {
-                        e.printStackTrace();
                     }
                 }
-            }
-        }.start();
+            }.start();
+        } catch (Exception e) {
+            warnErrorMessage.setText("");
+        }
     }
 
     private void stopFishing() {
