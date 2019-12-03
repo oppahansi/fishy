@@ -1,5 +1,7 @@
+import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -11,6 +13,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -20,7 +25,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-public class Controller {
+public class MainController {
     public Pane colorSettingsPane;
     public ImageView bobberColor;
     public ImageView bitingColor;
@@ -46,8 +51,14 @@ public class Controller {
     public Button closeButton;
 
     public Label warnErrorMessage;
+    public AnchorPane mainStage;
 
     private Stage searchStage;
+
+    private double xOffset = 0;
+    private double yOffset = 0;
+    private boolean fishing;
+    private boolean buffing;
 
     @FXML
     public void initialize() {
@@ -62,12 +73,36 @@ public class Controller {
         } else {
             try {
                 Parent root = FXMLLoader.load(getClass().getResource("SearchArea.fxml"));
+
                 searchStage = new Stage();
-                searchStage.initModality(Modality.APPLICATION_MODAL);
+                searchStage.initModality(Modality.NONE);
                 searchStage.setTitle(Utils.getRandomString());
-                searchStage.setScene(new Scene(root));
+
+                Scene scene = new Scene(root);
+                scene.setFill(javafx.scene.paint.Color.gray(0.25, 0.25));
+                scene.setOnKeyPressed(keyEvent -> {
+                    if (keyEvent.getCode() == KeyCode.ESCAPE) {
+                        stopFishing();
+                        searchStage.close();
+                    }
+                });
+
+                scene.setOnMouseClicked(mouseEvent -> {
+                    if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
+                        if(mouseEvent.getClickCount() == 2){
+                            searchStage.toBack();
+                            startFishing();
+                        }
+                    }
+                });
+
                 searchStage.initStyle(StageStyle.TRANSPARENT);
+                searchStage.setScene(scene);
+
+                ((Stage)((Button)actionEvent.getSource()).getScene().getWindow()).setIconified(true);
                 searchStage.show();
+
+                ResizeHelper.addResizeListener(searchStage);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -133,5 +168,13 @@ public class Controller {
         System.exit(1);
     }
 
+    private void startFishing() {
+        fishing = true;
 
+    }
+
+    private void stopFishing() {
+        fishing = false;
+        buffing = false;
+    }
 }

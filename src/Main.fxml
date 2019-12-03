@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#onKeyPressed" prefHeight="532.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
+<AnchorPane fx:id="mainStage" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#onKeyPressed" prefHeight="532.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainController">
    <children>
       <Pane fx:id="colorSettingsPane" layoutX="376.0" layoutY="14.0" prefHeight="461.0" prefWidth="410.0" style="-fx-border-color: #000000; -fx-background-color: #a3a3a3;">
          <children>
@@ -33,15 +33,15 @@
       <Pane fx:id="generalSettingsPane" layoutX="14.0" layoutY="14.0" prefHeight="461.0" prefWidth="355.0" style="-fx-background-color: #a3a3a3; -fx-border-color: #000000;">
          <children>
             <Label alignment="CENTER_RIGHT" layoutX="119.0" layoutY="34.0" text="Fishing Hotkey:" />
-            <TextField fx:id="fishingHotkey" alignment="CENTER" layoutX="235.0" layoutY="29.0" prefHeight="25.0" prefWidth="26.0" text="1" />
+            <TextField fx:id="fishingHotkey" alignment="CENTER" disable="true" layoutX="235.0" layoutY="29.0" prefHeight="25.0" prefWidth="26.0" text="1" />
             <Label alignment="CENTER_RIGHT" layoutX="136.0" layoutY="65.0" text="Buff Hotkey:" />
-            <TextField fx:id="buffHotkey" alignment="CENTER" layoutX="235.0" layoutY="60.0" prefHeight="25.0" prefWidth="26.0" text="2" />
+            <TextField fx:id="buffHotkey" alignment="CENTER" disable="true" layoutX="235.0" layoutY="60.0" prefHeight="25.0" prefWidth="26.0" text="2" />
             <Label alignment="CENTER_RIGHT" layoutX="118.0" layoutY="96.0" text="Sample Hotkey:" />
-            <TextField fx:id="sampleHotkey" alignment="CENTER" layoutX="235.0" layoutY="91.0" prefHeight="25.0" prefWidth="26.0" text="S" />
+            <TextField fx:id="sampleHotkey" alignment="CENTER" disable="true" layoutX="235.0" layoutY="91.0" prefHeight="25.0" prefWidth="26.0" text="S" />
             <Label alignment="CENTER_RIGHT" layoutX="88.0" layoutY="127.0" text="Bobber Color Hotkey:" />
-            <TextField fx:id="bobberColorHotkey" alignment="CENTER" layoutX="235.0" layoutY="122.0" prefHeight="25.0" prefWidth="26.0" text="D" />
+            <TextField fx:id="bobberColorHotkey" alignment="CENTER" disable="true" layoutX="235.0" layoutY="122.0" prefHeight="25.0" prefWidth="26.0" text="D" />
             <Label alignment="CENTER_RIGHT" layoutX="105.0" layoutY="158.0" text="Bite Color Hotkey:" />
-            <TextField fx:id="biteColorHotkey" alignment="CENTER" layoutX="235.0" layoutY="153.0" prefHeight="25.0" prefWidth="26.0" text="F" />
+            <TextField fx:id="biteColorHotkey" alignment="CENTER" disable="true" layoutX="235.0" layoutY="153.0" prefHeight="25.0" prefWidth="26.0" text="F" />
             <Label alignment="CENTER_RIGHT" layoutX="43.0" layoutY="189.0" text="Fishing Duration (in seconds):" />
             <TextField fx:id="fishingDuration" alignment="CENTER" layoutX="235.0" layoutY="184.0" prefHeight="25.0" prefWidth="35.0" text="26" />
             <Label alignment="CENTER_RIGHT" layoutX="61.0" layoutY="220.0" text="Search Delay (in seconds):" />
@@ -54,7 +54,7 @@
             <Label alignment="CENTER_RIGHT" layoutX="60.0" layoutY="313.0" text="Buff Duration (in minutes):" />
             <Label alignment="CENTER_RIGHT" layoutX="138.0" layoutY="344.0" text="Buff Count:" />
             <TextField fx:id="buffCount" alignment="CENTER" layoutX="234.0" layoutY="339.0" prefHeight="25.0" prefWidth="35.0" text="10" />
-            <Button fx:id="startButton" layoutX="53.0" layoutY="388.0" mnemonicParsing="false" prefHeight="44.0" prefWidth="114.0" text="Fishy" />
+            <Button fx:id="startButton" layoutX="53.0" layoutY="388.0" mnemonicParsing="false" onAction="#onFishyButtonPressed" prefHeight="44.0" prefWidth="114.0" text="Fishy" />
             <Button fx:id="closeButton" layoutX="214.0" layoutY="393.0" mnemonicParsing="false" onAction="#onCloseButtonPressed" prefHeight="35.0" prefWidth="75.0" text="Close" />
          </children>
       </Pane>
