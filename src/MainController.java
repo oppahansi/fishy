@@ -24,52 +24,66 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public class MainController {
+    // Color Settings
     public Pane colorSettingsPane;
-    public ImageView bobberColor;
-    public ImageView bitingColor;
-    public Slider bobberSens;
-    public Slider bitingSens;
-    public TextField bobberSensValue;
-    public TextField bitingSensValue;
+    public ImageView bobberColorImage;
+    public ImageView bitingColorImage;
+    public Slider bobberSensSlider;
+    public Slider bitingSensSlider;
+    public TextField bobberSensitivity;
+    public TextField bitingSensitivity;
     public ImageView sampleImage;
 
+    // General Settings
     public Pane generalSettingsPane;
     public TextField fishingHotkey;
     public TextField buffHotkey;
     public TextField sampleHotkey;
     public TextField bobberColorHotkey;
     public TextField biteColorHotkey;
-    public TextField fishingDuration;
-    public TextField searchDelay;
-    public CheckBox useBuff;
-    public CheckBox shiftLoot;
-    public TextField buffDuration;
-    public TextField buffCount;
+    public TextField fishingDurationField;
+    public TextField searchDelayField;
+    public CheckBox useBuffCheckBox;
+    public CheckBox shiftLootCheckBox;
+    public TextField buffDurationField;
+    public TextField buffCountField;
+    public TextField fishingCycleField;
     public Button startButton;
     public Button closeButton;
 
+    // Misc
     public Label warnErrorMessage;
     public AnchorPane mainStage;
-    public ImageView debugImage;
+    public ImageView bobberImage;
+    public ImageView bitingImage;
 
+    // Search
     private Stage searchStage;
 
-    private double xOffset = 0;
-    private double yOffset = 0;
-    private boolean fishing;
-    private double  buffing;
+    // Misc
+    private int bobberColor;
+    private int bitingColor;
 
     @FXML
     public void initialize() {
-        //bitingSensValue.setText(((int)bitingSens.getValue()));
+        if (bobberSensitivity != null && bobberSensSlider != null)
+            bobberSensitivity.setText(String.valueOf((int)bobberSensSlider.getValue()));
+
+        if (bitingSensitivity != null && bitingSensSlider != null)
+            bitingSensitivity.setText(String.valueOf((int)bitingSensSlider.getValue()));
+
+        if (bobberSensSlider != null)
+            bobberSensSlider.valueProperty().addListener((observable, oldValue, newValue) -> bobberSensitivity.setText(String.valueOf(newValue.intValue())));
+
+        if (bitingSensSlider != null)
+            bitingSensSlider.valueProperty().addListener((observable, oldValue, newValue) -> bitingSensitivity.setText(String.valueOf(newValue.intValue())));
     }
 
     @FXML
     public void onFishyButtonPressed(ActionEvent actionEvent) {
-        if (startButton.getText().compareTo("Stop") == 0) {
-
+        if (startButton.getText().compareTo("Stop") == 0)
             startButton.setText("Fishy");
-        } else {
+        else {
             makeSearchStage(actionEvent);
             startButton.setText("Stop");
         }
@@ -92,9 +106,11 @@ public class MainController {
         } else if (keyCode == KeyCode.S) {
             generateSampleImage();
         } else if (keyCode == KeyCode.D) {
-            generateColorImage(bobberColor);
+            generateColorImage(bobberColorImage);
+            bobberColor = bobberColorImage.getImage().getPixelReader().getArgb(0, 0);
         } else if (keyCode == KeyCode.F) {
-            generateColorImage(bitingColor);
+            generateColorImage(bitingColorImage);
+            bitingColor = bitingColorImage.getImage().getPixelReader().getArgb(0, 0);
         }
     }
 
@@ -166,41 +182,51 @@ public class MainController {
     }
 
     private void exit() {
-        // do stuff before exit
+        if (searchStage != null) stopFishing();
         System.exit(1);
     }
 
     private void startFishing() {
-        fishing = true;
-
-        final long startNanoTime = System.nanoTime();
-
         try {
             new AnimationTimer()
             {
-                private float lastUpdate = System.nanoTime();
                 Robot robot = new Robot();
+                Fisher fisher = new Fisher(
+                        bobberImage,
+                        bitingImage,
+                        searchStage,
+                        bobberColor,
+                        bitingColor,
+                        Integer.parseInt(bobberSensitivity.getText()),
+                        Integer.parseInt(bitingSensitivity.getText()),
+                        Integer.parseInt(fishingCycleField.getText()),
+                        Integer.parseInt(fishingDurationField.getText()),
+                        Integer.parseInt(searchDelayField.getText()),
+                        Integer.parseInt(buffDurationField.getText()),
+                        Integer.parseInt(buffCountField.getText()),
+                        shiftLootCheckBox.isSelected(),
+                        useBuffCheckBox.isSelected());
 
+                long lastUpdate = System.nanoTime();
+                int fpsTime = 100;
+
+                @Override
                 public void handle(long now) {
-                    float elapsedMilliSeconds = (now - lastUpdate) / 1000000.0f;
-                    float fpsTime = 100;
-
-                    if  (!fishing) stop();
-
-                    if (elapsedMilliSeconds >= fpsTime) {
-                        Rectangle captureRect = new Rectangle((int)searchStage.getX(), (int)searchStage.getY(), (int)searchStage.getWidth(), (int)searchStage.getHeight());
-                        BufferedImage sampleImageCaptured = robot.createScreenCapture(captureRect);
-                        debugImage.setImage(SwingFXUtils.toFXImage(sampleImageCaptured, null));
-                    }
-                }
+                    double delta = (now - lastUpdate) / 1000000.0;
+                    fisher.update(delta);
+                    lastUpdate = now;
+               }
             }.start();
+
         } catch (Exception e) {
             warnErrorMessage.setText("");
         }
     }
 
+
+
     private void stopFishing() {
-        fishing = false;
-        //buffing = false;
+        searchStage.close();
+        startButton.setText("Fishy");
     }
 }

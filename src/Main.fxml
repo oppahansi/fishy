@@ -15,15 +15,15 @@
          <children>
             <Label layoutX="166.0" layoutY="6.0" text="Sample Image" />
             <Label layoutX="55.0" layoutY="344.0" text="Fishing Bobber Color" />
-            <ImageView fx:id="bobberColor" fitHeight="150.0" fitWidth="190.0" layoutX="16.0" layoutY="186.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="bobberColorImage" fitHeight="150.0" fitWidth="190.0" layoutX="16.0" layoutY="186.0" pickOnBounds="true" preserveRatio="true">
             </ImageView>
             <Label layoutX="270.0" layoutY="344.0" text="Biting Color" />
-            <ImageView fx:id="bitingColor" fitHeight="150.0" fitWidth="190.0" layoutX="206.0" layoutY="186.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="bitingColorImage" fitHeight="150.0" fitWidth="190.0" layoutX="206.0" layoutY="186.0" pickOnBounds="true" preserveRatio="true">
             </ImageView>
-            <Slider fx:id="bobberSens" layoutX="41.0" layoutY="399.0" value="5.0" />
-            <Slider fx:id="bitingSens" layoutX="232.0" layoutY="401.0" />
-            <TextField fx:id="bobberSensValue" alignment="CENTER" layoutX="94.0" layoutY="422.0" prefHeight="25.0" prefWidth="35.0" text="11" />
-            <TextField fx:id="bitingSensValue" alignment="CENTER" layoutX="284.0" layoutY="422.0" prefHeight="25.0" prefWidth="35.0" text="8" />
+            <Slider fx:id="bobberSensSlider" layoutX="41.0" layoutY="399.0" value="11.0" />
+            <Slider fx:id="bitingSensSlider" layoutX="232.0" layoutY="401.0" value="8.0" />
+            <TextField fx:id="bobberSensitivity" alignment="CENTER" layoutX="94.0" layoutY="422.0" prefHeight="25.0" prefWidth="35.0" text="0" />
+            <TextField fx:id="bitingSensitivity" alignment="CENTER" layoutX="284.0" layoutY="422.0" prefHeight="25.0" prefWidth="35.0" text="0" />
             <Label layoutX="85.0" layoutY="383.0" text="Sensitivity" />
             <Label layoutX="276.0" layoutY="383.0" text="Sensitivity" />
             <ImageView fx:id="sampleImage" fitHeight="150.0" fitWidth="380.0" layoutX="14.0" layoutY="29.0" pickOnBounds="true" preserveRatio="true">
@@ -32,33 +32,36 @@
       </Pane>
       <Pane fx:id="generalSettingsPane" layoutX="14.0" layoutY="14.0" prefHeight="461.0" prefWidth="355.0" style="-fx-background-color: #a3a3a3; -fx-border-color: #000000;">
          <children>
-            <Label alignment="CENTER_RIGHT" layoutX="119.0" layoutY="34.0" text="Fishing Hotkey:" />
-            <TextField fx:id="fishingHotkey" alignment="CENTER" disable="true" layoutX="235.0" layoutY="29.0" prefHeight="25.0" prefWidth="26.0" text="1" />
-            <Label alignment="CENTER_RIGHT" layoutX="136.0" layoutY="65.0" text="Buff Hotkey:" />
-            <TextField fx:id="buffHotkey" alignment="CENTER" disable="true" layoutX="235.0" layoutY="60.0" prefHeight="25.0" prefWidth="26.0" text="2" />
-            <Label alignment="CENTER_RIGHT" layoutX="118.0" layoutY="96.0" text="Sample Hotkey:" />
-            <TextField fx:id="sampleHotkey" alignment="CENTER" disable="true" layoutX="235.0" layoutY="91.0" prefHeight="25.0" prefWidth="26.0" text="S" />
-            <Label alignment="CENTER_RIGHT" layoutX="88.0" layoutY="127.0" text="Bobber Color Hotkey:" />
-            <TextField fx:id="bobberColorHotkey" alignment="CENTER" disable="true" layoutX="235.0" layoutY="122.0" prefHeight="25.0" prefWidth="26.0" text="D" />
-            <Label alignment="CENTER_RIGHT" layoutX="105.0" layoutY="158.0" text="Bite Color Hotkey:" />
-            <TextField fx:id="biteColorHotkey" alignment="CENTER" disable="true" layoutX="235.0" layoutY="153.0" prefHeight="25.0" prefWidth="26.0" text="F" />
-            <Label alignment="CENTER_RIGHT" layoutX="43.0" layoutY="189.0" text="Fishing Duration (in seconds):" />
-            <TextField fx:id="fishingDuration" alignment="CENTER" layoutX="235.0" layoutY="184.0" prefHeight="25.0" prefWidth="35.0" text="26" />
-            <Label alignment="CENTER_RIGHT" layoutX="61.0" layoutY="220.0" text="Search Delay (in seconds):" />
-            <TextField fx:id="searchDelay" alignment="CENTER" layoutX="235.0" layoutY="215.0" prefHeight="25.0" prefWidth="35.0" text="2" />
-            <CheckBox fx:id="useBuff" layoutX="235.0" layoutY="277.0" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" />
-            <Label alignment="CENTER_RIGHT" layoutX="143.0" layoutY="278.0" text="Use Buff?" />
-            <CheckBox fx:id="shiftLoot" layoutX="235.0" layoutY="246.0" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" />
-            <Label alignment="CENTER_RIGHT" layoutX="140.0" layoutY="247.0" text="Shift Loot?" />
-            <TextField fx:id="buffDuration" alignment="CENTER" layoutX="235.0" layoutY="308.0" prefHeight="25.0" prefWidth="35.0" text="10" />
-            <Label alignment="CENTER_RIGHT" layoutX="60.0" layoutY="313.0" text="Buff Duration (in minutes):" />
-            <Label alignment="CENTER_RIGHT" layoutX="138.0" layoutY="344.0" text="Buff Count:" />
-            <TextField fx:id="buffCount" alignment="CENTER" layoutX="234.0" layoutY="339.0" prefHeight="25.0" prefWidth="35.0" text="10" />
-            <Button fx:id="startButton" layoutX="53.0" layoutY="388.0" mnemonicParsing="false" onAction="#onFishyButtonPressed" prefHeight="44.0" prefWidth="114.0" text="Fishy" />
-            <Button fx:id="closeButton" layoutX="214.0" layoutY="393.0" mnemonicParsing="false" onAction="#onCloseButtonPressed" prefHeight="35.0" prefWidth="75.0" text="Close" />
+            <Label alignment="CENTER_RIGHT" layoutX="120.0" layoutY="19.0" text="Fishing Hotkey:" />
+            <TextField fx:id="fishingHotkey" alignment="CENTER" disable="true" layoutX="236.0" layoutY="14.0" prefHeight="25.0" prefWidth="26.0" text="1" />
+            <Label alignment="CENTER_RIGHT" layoutX="137.0" layoutY="50.0" text="Buff Hotkey:" />
+            <TextField fx:id="buffHotkey" alignment="CENTER" disable="true" layoutX="236.0" layoutY="45.0" prefHeight="25.0" prefWidth="26.0" text="2" />
+            <Label alignment="CENTER_RIGHT" layoutX="119.0" layoutY="81.0" text="Sample Hotkey:" />
+            <TextField fx:id="sampleHotkey" alignment="CENTER" disable="true" layoutX="236.0" layoutY="76.0" prefHeight="25.0" prefWidth="26.0" text="S" />
+            <Label alignment="CENTER_RIGHT" layoutX="89.0" layoutY="112.0" text="Bobber Color Hotkey:" />
+            <TextField fx:id="bobberColorHotkey" alignment="CENTER" disable="true" layoutX="236.0" layoutY="107.0" prefHeight="25.0" prefWidth="26.0" text="D" />
+            <Label alignment="CENTER_RIGHT" layoutX="106.0" layoutY="143.0" text="Bite Color Hotkey:" />
+            <TextField fx:id="biteColorHotkey" alignment="CENTER" disable="true" layoutX="236.0" layoutY="138.0" prefHeight="25.0" prefWidth="26.0" text="F" />
+            <Label alignment="CENTER_RIGHT" layoutX="62.0" layoutY="173.0" text="Fishing Cycle (in seconds):" />
+            <TextField fx:id="fishingCycleField" alignment="CENTER" layoutX="236.0" layoutY="169.0" prefHeight="25.0" prefWidth="59.0" text="26000" />
+            <Label alignment="CENTER_RIGHT" layoutX="62.0" layoutY="205.0" text="Search Delay (in seconds):" />
+            <TextField fx:id="searchDelayField" alignment="CENTER" layoutX="236.0" layoutY="200.0" prefHeight="25.0" prefWidth="59.0" text="3000" />
+            <CheckBox fx:id="useBuffCheckBox" layoutX="236.0" layoutY="262.0" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" />
+            <Label alignment="CENTER_RIGHT" layoutX="149.0" layoutY="262.0" text="Use Buff?" />
+            <CheckBox fx:id="shiftLootCheckBox" layoutX="236.0" layoutY="231.0" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" />
+            <Label alignment="CENTER_RIGHT" layoutX="141.0" layoutY="232.0" text="Shift Loot?" />
+            <TextField fx:id="buffDurationField" alignment="CENTER" layoutX="236.0" layoutY="293.0" prefHeight="25.0" prefWidth="35.0" text="10" />
+            <Label alignment="CENTER_RIGHT" layoutX="61.0" layoutY="298.0" text="Buff Duration (in minutes):" />
+            <Label alignment="CENTER_RIGHT" layoutX="139.0" layoutY="329.0" text="Buff Count:" />
+            <TextField fx:id="buffCountField" alignment="CENTER" layoutX="236.0" layoutY="324.0" prefHeight="25.0" prefWidth="35.0" text="10" />
+            <Label alignment="CENTER_RIGHT" layoutX="48.0" layoutY="359.0" prefHeight="17.0" prefWidth="152.0" text="Fishing Duration (in Hours):" />
+            <TextField fx:id="fishingDurationField" alignment="CENTER" layoutX="236.0" layoutY="355.0" prefHeight="25.0" prefWidth="35.0" text="8" />
+            <Button fx:id="startButton" layoutX="60.0" layoutY="403.0" mnemonicParsing="false" onAction="#onFishyButtonPressed" prefHeight="44.0" prefWidth="114.0" text="Fishy" />
+            <Button fx:id="closeButton" layoutX="220.0" layoutY="407.0" mnemonicParsing="false" onAction="#onCloseButtonPressed" prefHeight="35.0" prefWidth="75.0" text="Close" />
          </children>
       </Pane>
       <Label fx:id="warnErrorMessage" layoutX="29.0" layoutY="492.0" opacity="0.0" text="Warning or Error message here" textFill="#bf0000" />
-      <ImageView fx:id="debugImage" fitHeight="347.0" fitWidth="762.0" layoutX="21.0" layoutY="509.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="bobberImage" fitHeight="305.0" fitWidth="296.0" layoutX="44.0" layoutY="509.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="bitingImage" fitHeight="305.0" fitWidth="296.0" layoutX="433.0" layoutY="509.0" pickOnBounds="true" preserveRatio="true" />
    </children>
 </AnchorPane>
