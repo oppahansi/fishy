@@ -217,13 +217,10 @@ public class MainController {
                     lastUpdate = now;
                }
             }.start();
-
         } catch (Exception e) {
-            warnErrorMessage.setText("");
+            e.printStackTrace();
         }
     }
-
-
 
     private void stopFishing() {
         searchStage.close();

@@ -5,6 +5,7 @@ import javafx.stage.Stage;
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.image.BufferedImage;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Fisher {
 
@@ -63,7 +64,7 @@ public class Fisher {
         buffed = false;
         bobberFound = false;
         biteFound = false;
-        waitingDuration = 0;
+        waitingDuration = searchDelay;
         fishingTimer = 0;
         buffTimer = buffDuration;
         bobberX = 0;
@@ -97,24 +98,28 @@ public class Fisher {
             pressBuffHotkey();
             waitingDuration = buffingDelay;
             buffed = true;
+            buffTimer = buffDuration;
             buffCount--;
 
             return;
         }
 
         if (!fishing) {
+            mouseGlide((int)stage.getX() + bobberX, (int)stage.getY() + bobberY, (int)stage.getX(), (int)stage.getY(), ThreadLocalRandom.current().nextInt(500, 800 + 1), 50);
+
             pressFishingHotkey();
             waitingDuration = searchDelay;
             fishingTimer = fishingCycle;
             fishing = true;
 
-            System.out.printf("Starting fishing..%nFishing cycle: %d, delta: %f%n", fishingTimer, delta);
+            System.out.printf("Starting fishing..%nUsing BUff: %b%n", fishingTimer, delta, useBuff);
             return;
         }
 
         if (useBuff && buffTimer <= delta) {
             buffed = false;
             fishing = false;
+            return;
         } else {
             buffTimer -= delta;
         }
@@ -141,16 +146,20 @@ public class Fisher {
             fishing = false;
             biteFound = false;
             bobberFound = false;
+            bobberX = 0;
+            bobberY = 0;
         }
     }
 
     private void pressFishingHotkey() {
         robot.keyPress(49);
+        robot.delay(75);
         robot.keyRelease(49);
     }
 
     private void pressBuffHotkey() {
         robot.keyPress(50);
+        robot.delay(75);
         robot.keyRelease(50);
     }
 
@@ -194,8 +203,9 @@ public class Fisher {
 
                 if (diff <= bitingSensitivity) {
                     biteFound = true;
-                    robot.mouseMove((int)stage.getX() + bobberX, (int)stage.getY() + bobberY);
+                    mouseGlide((int)stage.getX(), (int)stage.getY(), (int)stage.getX() + bobberX, (int)stage.getY() + bobberY, ThreadLocalRandom.current().nextInt(500, 800 + 1), 50);
                     waitingDuration = 500;
+
                     System.out.printf("Bite found at X: %d | Y: %d%n", x, y);
                     return;
                 }
@@ -213,6 +223,21 @@ public class Fisher {
         robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
         robot.delay(75);
         if (shiftLoot) robot.keyRelease(16);
+    }
+
+    public void mouseGlide(int x1, int y1, int x2, int y2, int t, int n) {
+        try {
+            Robot r = new Robot();
+            double dx = (x2 - x1) / ((double) n);
+            double dy = (y2 - y1) / ((double) n);
+            double dt = t / ((double) n);
+            for (int step = 1; step <= n; step++) {
+                Thread.sleep((int) dt);
+                r.mouseMove((int) (x1 + dx * step), (int) (y1 + dy * step));
+            }
+        } catch (AWTException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private BufferedImage getFishingArea() {
