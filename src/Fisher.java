@@ -112,11 +112,10 @@ public class Fisher {
             fishingTimer = fishingCycle;
             fishing = true;
 
-            System.out.printf("Starting fishing..%nUsing BUff: %b%n", fishingTimer, delta, useBuff);
             return;
         }
 
-        if (useBuff && buffTimer <= delta) {
+        if (useBuff && buffCount > 0 && buffTimer <= delta) {
             buffed = false;
             fishing = false;
             return;
@@ -164,8 +163,6 @@ public class Fisher {
     }
 
     private void findBobber() {
-        System.out.printf("Finding bobber ... %n");
-
         BufferedImage fishingArea = getFishingArea();
         bobberImage.setImage(SwingFXUtils.toFXImage(fishingArea, null));
 
@@ -182,14 +179,12 @@ public class Fisher {
                     BufferedImage bobberArea = getBitingArea();
                     bobberImage.setImage(SwingFXUtils.toFXImage(bobberArea, null));
 
-                    System.out.printf("Bobber found at : %d | Y: %d%n", x, y);
                     return;
                 }
             }
         }
 
         fishing = false;
-        System.out.printf("Bobber NOT found%n");
     }
 
     private void findBite() {
@@ -205,8 +200,6 @@ public class Fisher {
                     biteFound = true;
                     mouseGlide((int)stage.getX(), (int)stage.getY(), (int)stage.getX() + bobberX, (int)stage.getY() + bobberY, ThreadLocalRandom.current().nextInt(500, 800 + 1), 50);
                     waitingDuration = 500;
-
-                    System.out.printf("Bite found at X: %d | Y: %d%n", x, y);
                     return;
                 }
             }
@@ -214,8 +207,6 @@ public class Fisher {
     }
 
     private void loot() {
-        System.out.printf("Looting...%n");
-
         if (shiftLoot) robot.keyPress(16);
         robot.delay(75);
         robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
@@ -250,7 +241,7 @@ public class Fisher {
         return robot.createScreenCapture(captureRect);
     }
 
-    private void end() {
+    public void end() {
         System.exit(1);
     }
 }

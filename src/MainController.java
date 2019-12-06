@@ -59,6 +59,7 @@ public class MainController {
 
     // Search
     private Stage searchStage;
+    private AnimationTimer animationTimer;
 
     // Misc
     private int bobberColor;
@@ -157,6 +158,7 @@ public class MainController {
                 if (keyEvent.getCode() == KeyCode.ESCAPE) {
                     stopFishing();
                     searchStage.close();
+                    ((Stage)((Button)actionEvent.getSource()).getScene().getWindow()).setIconified(false);
                 }
             });
 
@@ -188,7 +190,7 @@ public class MainController {
 
     private void startFishing() {
         try {
-            new AnimationTimer()
+            animationTimer = new AnimationTimer()
             {
                 Robot robot = new Robot();
                 Fisher fisher = new Fisher(
@@ -216,14 +218,18 @@ public class MainController {
                     fisher.update(delta);
                     lastUpdate = now;
                }
-            }.start();
+            };
+
+            animationTimer.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     private void stopFishing() {
-        searchStage.close();
+        if (searchStage != null) searchStage.close();
+        if (animationTimer != null) animationTimer.stop();
+
         startButton.setText("Fishy");
     }
 }
