@@ -56,6 +56,8 @@ public class MainController {
     public AnchorPane mainStage;
     public ImageView bobberImage;
     public ImageView bitingImage;
+    public ImageView bobberColorAverageImage;
+    public ImageView bitingColorAverageImage;
 
     // Search
     private Stage searchStage;

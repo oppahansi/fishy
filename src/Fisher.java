@@ -105,7 +105,7 @@ public class Fisher {
         }
 
         if (!fishing) {
-            mouseGlide((int)stage.getX() + bobberX, (int)stage.getY() + bobberY, (int)stage.getX(), (int)stage.getY(), ThreadLocalRandom.current().nextInt(500, 800 + 1), 50);
+            mouseGlide((int)MouseInfo.getPointerInfo().getLocation().getX(), (int)MouseInfo.getPointerInfo().getLocation().getY(), (int)stage.getX(), (int)stage.getY(), ThreadLocalRandom.current().nextInt(500, 800 + 1), 50);
 
             pressFishingHotkey();
             waitingDuration = searchDelay;
@@ -178,6 +178,7 @@ public class Fisher {
 
                     BufferedImage bobberArea = getBitingArea();
                     bobberImage.setImage(SwingFXUtils.toFXImage(bobberArea, null));
+                    //setAverageColorImage(bobberArea, bobberColorAverageImage);
 
                     return;
                 }
@@ -190,6 +191,7 @@ public class Fisher {
     private void findBite() {
         BufferedImage bitingArea = getBitingArea();
         bitingImage.setImage(SwingFXUtils.toFXImage(bitingArea, null));
+        //setAverageColorImage(bitingArea, bitingColorAverageImage);
 
         for (int x = 0; x < bitingArea.getWidth(); x++) {
             for (int y = 0; y < bitingArea.getHeight(); y++) {
@@ -198,12 +200,37 @@ public class Fisher {
 
                 if (diff <= bitingSensitivity) {
                     biteFound = true;
-                    mouseGlide((int)stage.getX(), (int)stage.getY(), (int)stage.getX() + bobberX, (int)stage.getY() + bobberY, ThreadLocalRandom.current().nextInt(500, 800 + 1), 50);
+                    mouseGlide((int)MouseInfo.getPointerInfo().getLocation().getX(), (int)MouseInfo.getPointerInfo().getLocation().getY(), (int)stage.getX() + bobberX, (int)stage.getY() + bobberY, ThreadLocalRandom.current().nextInt(500, 800 + 1), 50);
                     waitingDuration = 500;
                     return;
                 }
             }
         }
+    }
+
+    private void setAverageColorImage(BufferedImage bitingArea, ImageView averageColorImage) {
+        BufferedImage image = new BufferedImage(300, 300, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = image.createGraphics();
+
+        int pixelAmount = bitingArea.getWidth() * bitingArea.getHeight();
+        long sumr = 0, sumg = 0, sumb = 0;
+
+        for (int x = 0; x < bitingArea.getWidth(); x++) {
+            for (int y = 0; y < bitingArea.getHeight(); y++) {
+                Color pixel = new Color(bitingArea.getRGB(x, y));
+                sumr += pixel.getRed();
+                sumg += pixel.getGreen();
+                sumb += pixel.getBlue();
+            }
+        }
+
+        sumr /= pixelAmount;
+        sumg /= pixelAmount;
+        sumb /= pixelAmount;
+
+        graphics.setColor(new Color((int)sumr, (int)sumg, (int)sumb));
+        graphics.fillRect ( 0, 0, image.getWidth(), image.getHeight());
+        averageColorImage.setImage(SwingFXUtils.toFXImage(image, null));
     }
 
     private void loot() {

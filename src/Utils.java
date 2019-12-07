@@ -1,3 +1,8 @@
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.ImageView;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.Random;
 
 class Utils {
@@ -22,5 +27,25 @@ class Utils {
         }
 
         return buffer.toString();
+    }
+
+    static Color getAverageColorFromImage(BufferedImage bitingArea) {
+        int pixelAmount = bitingArea.getWidth() * bitingArea.getHeight();
+        long sumr = 0, sumg = 0, sumb = 0;
+
+        for (int x = 0; x < bitingArea.getWidth(); x++) {
+            for (int y = 0; y < bitingArea.getHeight(); y++) {
+                Color pixel = new Color(bitingArea.getRGB(x, y));
+                sumr += pixel.getRed();
+                sumg += pixel.getGreen();
+                sumb += pixel.getBlue();
+            }
+        }
+
+        sumr /= pixelAmount;
+        sumg /= pixelAmount;
+        sumb /= pixelAmount;
+
+        return new Color((int)sumr, (int)sumg, (int)sumb);
     }
 }
