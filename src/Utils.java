@@ -4,6 +4,7 @@ import javafx.scene.image.ImageView;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 class Utils {
     static String getRandomString() {
@@ -47,5 +48,17 @@ class Utils {
         sumb /= pixelAmount;
 
         return new Color((int)sumr, (int)sumg, (int)sumb);
+    }
+
+    static int getMouseScreenX() {
+        return (int)MouseInfo.getPointerInfo().getLocation().getX();
+    }
+
+    static int getMouseScreenY() {
+        return (int)MouseInfo.getPointerInfo().getLocation().getY();
+    }
+
+    static int getRandomMoveTime() {
+        return ThreadLocalRandom.current().nextInt(500, 800 + 1);
     }
 }

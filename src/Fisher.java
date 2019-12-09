@@ -5,6 +5,7 @@ import javafx.stage.Stage;
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.image.BufferedImage;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Fisher {
@@ -14,6 +15,7 @@ public class Fisher {
 
     private Stage stage;
     private Robot robot;
+    private Random rng;
 
     private int bobberColor;
     private int bitingColor;
@@ -28,15 +30,13 @@ public class Fisher {
     private boolean useBuff;
 
     private int buffingDelay;
-    private int fpsTime;
 
     private boolean fishing;
-    private boolean buffed;
-    private boolean bobberFound;
     private boolean biteFound;
     private int waitingDuration;
     private int fishingTimer;
     private int buffTimer;
+    private int bobberCheckTimer;
     private int bobberX;
     private int bobberY;
     private int bitingAreaRange;
@@ -58,15 +58,13 @@ public class Fisher {
         this.useBuff = useBuff;
 
         buffingDelay = 8000;
-        fpsTime = 100;
 
         fishing = false;
-        buffed = false;
-        bobberFound = false;
         biteFound = false;
         waitingDuration = searchDelay;
         fishingTimer = 0;
-        buffTimer = buffDuration;
+        buffTimer = 0;
+        bobberCheckTimer = 0;
         bobberX = 0;
         bobberY = 0;
         bitingAreaRange = 200;
@@ -74,38 +72,51 @@ public class Fisher {
         try {
             robot = new Robot();
         } catch (AWTException e) {
-            System.out.println(e.getMessage());
             System.exit(-1);
         }
+
+        rng = new Random();
     }
 
     public void update(double delta) {
-        if (fishingDuration != 0 && fishingDuration <= delta) {
+        if (fishingDuration != 0 && fishingDuration <= delta)
             end();
-        } else {
+        else
             fishingDuration -= delta;
-        }
 
         if (waitingDuration != 0) {
             waitingDuration -= delta;
 
-            if (waitingDuration <= delta) waitingDuration = 0;
+            if (waitingDuration <= delta)
+                waitingDuration = 0;
 
             return;
         }
 
-        if (useBuff && buffCount > 0 && !buffed) {
-            pressBuffHotkey();
-            waitingDuration = buffingDelay;
-            buffed = true;
-            buffTimer = buffDuration;
-            buffCount--;
+        if (useBuff) {
+            if (buffCount > 0 && buffTimer == 0) {
+                pressBuffHotkey();
+                waitingDuration = buffingDelay;
+                buffTimer = buffDuration - 5000;
+                buffCount--;
 
-            return;
+                return;
+            }
+
+            if (buffTimer > 0) {
+                buffTimer -= delta;
+
+                if (buffTimer <= delta) {
+                    buffTimer = 0;
+                    fishing = false;
+                    return;
+                }
+            }
         }
+
 
         if (!fishing) {
-            mouseGlide((int)MouseInfo.getPointerInfo().getLocation().getX(), (int)MouseInfo.getPointerInfo().getLocation().getY(), (int)stage.getX(), (int)stage.getY(), ThreadLocalRandom.current().nextInt(500, 800 + 1), 50);
+            mouseGlide(Utils.getMouseScreenX(), Utils.getMouseScreenY(), (int)stage.getX() + rng.nextInt((int)stage.getWidth()) + 1, (int)stage.getY() + rng.nextInt((int)stage.getHeight()) + 1, Utils.getRandomMoveTime(), 50);
 
             pressFishingHotkey();
             waitingDuration = searchDelay;
@@ -115,39 +126,31 @@ public class Fisher {
             return;
         }
 
-        if (useBuff && buffCount > 0 && buffTimer <= delta) {
-            buffed = false;
+        if (fishingTimer <= delta)
             fishing = false;
-            return;
-        } else {
-            buffTimer -= delta;
-        }
-
-        if (fishingTimer <= delta) {
-            fishing = false;
-            bobberFound = false;
-        } else {
+        else
             fishingTimer -= delta;
-        }
 
-        if (!bobberFound) {
+        if (bobberCheckTimer <= delta) {
             findBobber();
-            return;
-        }
+            bobberCheckTimer = 5000;
+        } else
+            bobberCheckTimer -= delta;
 
-        if (!biteFound) {
-            findBite();
-        } else {
+        if (!biteFound) findBite();
+
+        if (biteFound) {
             loot();
 
             waitingDuration = 3000;
 
             fishing = false;
             biteFound = false;
-            bobberFound = false;
-            bobberX = 0;
-            bobberY = 0;
         }
+    }
+
+    public void end() {
+        System.exit(1);
     }
 
     private void pressFishingHotkey() {
@@ -164,7 +167,6 @@ public class Fisher {
 
     private void findBobber() {
         BufferedImage fishingArea = getFishingArea();
-        bobberImage.setImage(SwingFXUtils.toFXImage(fishingArea, null));
 
         for (int x = 0; x < fishingArea.getWidth(); x++) {
             for (int y = 0; y < fishingArea.getHeight(); y++) {
@@ -174,12 +176,8 @@ public class Fisher {
                 if (diff <= bobberSensitivity) {
                     bobberX = x;
                     bobberY = y;
-                    bobberFound = true;
-
-                    BufferedImage bobberArea = getBitingArea();
+                    BufferedImage bobberArea = getBobberArea();
                     bobberImage.setImage(SwingFXUtils.toFXImage(bobberArea, null));
-                    //setAverageColorImage(bobberArea, bobberColorAverageImage);
-
                     return;
                 }
             }
@@ -189,48 +187,23 @@ public class Fisher {
     }
 
     private void findBite() {
-        BufferedImage bitingArea = getBitingArea();
-        bitingImage.setImage(SwingFXUtils.toFXImage(bitingArea, null));
-        //setAverageColorImage(bitingArea, bitingColorAverageImage);
+        BufferedImage fishingArea = getFishingArea();
+        BufferedImage bobberArea = getBobberArea();
+        bitingImage.setImage(SwingFXUtils.toFXImage(bobberArea, null));
 
-        for (int x = 0; x < bitingArea.getWidth(); x++) {
-            for (int y = 0; y < bitingArea.getHeight(); y++) {
-                int currentColor = bitingArea.getRGB(x, y);
+        for (int x = 0; x < fishingArea.getWidth(); x++) {
+            for (int y = 0; y < fishingArea.getHeight(); y++) {
+                int currentColor = fishingArea.getRGB(x, y);
                 double diff = (double)Math.abs(Math.abs(bitingColor) - Math.abs(currentColor)) / (double)Math.abs(bitingColor) * 100.0;
 
                 if (diff <= bitingSensitivity) {
                     biteFound = true;
-                    mouseGlide((int)MouseInfo.getPointerInfo().getLocation().getX(), (int)MouseInfo.getPointerInfo().getLocation().getY(), (int)stage.getX() + bobberX, (int)stage.getY() + bobberY, ThreadLocalRandom.current().nextInt(500, 800 + 1), 50);
+                    mouseGlide(Utils.getMouseScreenX(), Utils.getMouseScreenY(), (int)stage.getX() + x, (int)stage.getY() + y, Utils.getRandomMoveTime(), 50);
                     waitingDuration = 500;
                     return;
                 }
             }
         }
-    }
-
-    private void setAverageColorImage(BufferedImage bitingArea, ImageView averageColorImage) {
-        BufferedImage image = new BufferedImage(300, 300, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D graphics = image.createGraphics();
-
-        int pixelAmount = bitingArea.getWidth() * bitingArea.getHeight();
-        long sumr = 0, sumg = 0, sumb = 0;
-
-        for (int x = 0; x < bitingArea.getWidth(); x++) {
-            for (int y = 0; y < bitingArea.getHeight(); y++) {
-                Color pixel = new Color(bitingArea.getRGB(x, y));
-                sumr += pixel.getRed();
-                sumg += pixel.getGreen();
-                sumb += pixel.getBlue();
-            }
-        }
-
-        sumr /= pixelAmount;
-        sumg /= pixelAmount;
-        sumb /= pixelAmount;
-
-        graphics.setColor(new Color((int)sumr, (int)sumg, (int)sumb));
-        graphics.fillRect ( 0, 0, image.getWidth(), image.getHeight());
-        averageColorImage.setImage(SwingFXUtils.toFXImage(image, null));
     }
 
     private void loot() {
@@ -263,12 +236,8 @@ public class Fisher {
         return robot.createScreenCapture(captureRect);
     }
 
-    private BufferedImage getBitingArea() {
-        Rectangle captureRect = new Rectangle(Math.max(((int)stage.getX() + bobberX - bitingAreaRange / 2), 0), Math.max(((int)stage.getY() + bobberY - bitingAreaRange / 2), 0), bitingAreaRange, bitingAreaRange);
+    private BufferedImage getBobberArea() {
+        Rectangle captureRect = new Rectangle((int)stage.getX() + bobberX - bitingAreaRange / 2, (int)stage.getY() + bobberY - bitingAreaRange / 2, bitingAreaRange, bitingAreaRange);
         return robot.createScreenCapture(captureRect);
-    }
-
-    public void end() {
-        System.exit(1);
     }
 }
