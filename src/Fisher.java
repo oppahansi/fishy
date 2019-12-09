@@ -121,6 +121,7 @@ public class Fisher {
             pressFishingHotkey();
             waitingDuration = searchDelay;
             fishingTimer = fishingCycle;
+            bobberCheckTimer = 0;
             fishing = true;
 
             return;
