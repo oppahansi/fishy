@@ -13,7 +13,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -22,10 +21,10 @@ import javafx.stage.StageStyle;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 
 public class MainController {
-    // Color Settings
-    public Pane colorSettingsPane;
     public ImageView bobberColorImage;
     public ImageView bitingColorImage;
     public Slider bobberSensSlider;
@@ -34,8 +33,9 @@ public class MainController {
     public TextField bitingSensitivity;
     public ImageView sampleImage;
 
-    // General Settings
-    public Pane generalSettingsPane;
+    private int bobberColor;
+    private int bitingColor;
+
     public TextField fishingHotkey;
     public TextField buffHotkey;
     public TextField sampleHotkey;
@@ -50,20 +50,32 @@ public class MainController {
     public TextField fishingCycleField;
     public Button startButton;
     public Button closeButton;
+    public RadioButton timeCheckBox;
+    public RadioButton hooksCheckBox;
+    public RadioButton castsCheckBox;
+    public RadioButton hoursCheckBox;
+    public RadioButton neverCheckBox;
+    public RadioButton buffsUsedUpCheckBox;
+    public TextField timeField;
+    public TextField hooksField;
+    public TextField castsField;
+    public TextField hoursField;
+    public Label timeFormatLabel;
+    public LocalTime endTime;
 
-    // Misc
-    public Label warnErrorMessage;
-    public AnchorPane mainStage;
+    public TextField authKeyField;
+    public Label subStatusLabel;
+
     public ImageView bobberImage;
     public ImageView bitingImage;
 
-    // Search
-    private Stage searchStage;
+    private Stage fishingStage;
     private AnimationTimer animationTimer;
 
-    // Misc
-    private int bobberColor;
-    private int bitingColor;
+    private boolean fishing;
+    private ColorSettings colorSettings;
+    private FishingPlan fishingPlan;
+    private ExitPlan exitPlan;
 
     @FXML
     public void initialize() {
@@ -78,6 +90,22 @@ public class MainController {
 
         if (bitingSensSlider != null)
             bitingSensSlider.valueProperty().addListener((observable, oldValue, newValue) -> bitingSensitivity.setText(String.valueOf(newValue.intValue())));
+
+        if (timeField != null) {
+            timeField.textProperty().addListener((observable, oldValue, newValue) -> {
+                if (oldValue == null || newValue == null) return;
+                if (!oldValue.isEmpty() && !newValue.isEmpty())
+                    if (oldValue.equals(newValue)) return;
+
+                try {
+                    endTime = LocalTime.parse(newValue);
+                    timeFormatLabel.setTextFill(javafx.scene.paint.Paint.valueOf("#00ff00"));
+                } catch (DateTimeParseException e) {
+                    timeFormatLabel.setTextFill(javafx.scene.paint.Paint.valueOf("#ff0000"));
+                    endTime = null;
+                }
+            });
+        }
     }
 
     @FXML
@@ -85,7 +113,7 @@ public class MainController {
         if (startButton.getText().compareTo("Stop") == 0)
             startButton.setText("Fishy");
         else {
-            makeSearchStage(actionEvent);
+            setupFishingStage(actionEvent);
             startButton.setText("Stop");
         }
     }
@@ -144,20 +172,21 @@ public class MainController {
         }
     }
 
-    private void makeSearchStage(ActionEvent actionEvent) {
+    private void setupFishingStage(ActionEvent actionEvent) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("SearchArea.fxml"));
 
-            searchStage = new Stage();
-            searchStage.initModality(Modality.NONE);
-            searchStage.setTitle(Utils.getRandomString());
+            fishingStage = new Stage();
+            fishingStage.initModality(Modality.NONE);
+            fishingStage.setTitle(Utils.getRandomString());
 
             Scene scene = new Scene(root);
             scene.setFill(javafx.scene.paint.Color.gray(0.25, 0.25));
+
             scene.setOnKeyPressed(keyEvent -> {
                 if (keyEvent.getCode() == KeyCode.ESCAPE) {
                     stopFishing();
-                    searchStage.close();
+                    fishingStage.close();
                     ((Stage)((Button)actionEvent.getSource()).getScene().getWindow()).setIconified(false);
                 }
             });
@@ -165,52 +194,39 @@ public class MainController {
             scene.setOnMouseClicked(mouseEvent -> {
                 if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
                     if(mouseEvent.getClickCount() == 2){
-                        searchStage.toBack();
+                        fishingStage.toBack();
                         startFishing();
                     }
                 }
             });
 
-            searchStage.initStyle(StageStyle.TRANSPARENT);
-            searchStage.setScene(scene);
+            fishingStage.initStyle(StageStyle.TRANSPARENT);
+            fishingStage.setScene(scene);
 
             ((Stage)((Button)actionEvent.getSource()).getScene().getWindow()).setIconified(true);
-            searchStage.show();
+            fishingStage.show();
 
-            ResizeHelper.addResizeListener(searchStage);
+            ResizeHelper.addResizeListener(fishingStage);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     private void exit() {
-        if (searchStage != null) stopFishing();
+        if (fishingStage != null) stopFishing();
         System.exit(1);
     }
 
     private void startFishing() {
         try {
+            prepareConfigurations();
+
             animationTimer = new AnimationTimer()
             {
                 Robot robot = new Robot();
-                Fisher fisher = new Fisher(
-                        bobberImage,
-                        bitingImage,
-                        searchStage,
-                        bobberColor,
-                        bitingColor,
-                        Integer.parseInt(bobberSensitivity.getText()),
-                        Integer.parseInt(bitingSensitivity.getText()),
-                        Integer.parseInt(fishingCycleField.getText()),
-                        Integer.parseInt(fishingDurationField.getText()),
-                        Integer.parseInt(searchDelayField.getText()),
-                        Integer.parseInt(buffDurationField.getText()),
-                        Integer.parseInt(buffCountField.getText()),
-                        shiftLootCheckBox.isSelected(),
-                        useBuffCheckBox.isSelected());
+                Fisher fisher = new Fisher(bobberImage, bitingImage, fishingStage, colorSettings, fishingPlan, exitPlan);
 
                 long lastUpdate = System.nanoTime();
-                int fpsTime = 100;
 
                 @Override
                 public void handle(long now) {
@@ -221,15 +237,40 @@ public class MainController {
             };
 
             animationTimer.start();
+            fishing = true;
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     private void stopFishing() {
-        if (searchStage != null) searchStage.close();
-        if (animationTimer != null) animationTimer.stop();
+        if (fishing) fishingStage.close();
+        if (fishing) animationTimer.stop();
 
+        fishing = false;
         startButton.setText("Fishy");
+    }
+
+    private void prepareConfigurations() {
+        colorSettings = new ColorSettings(
+                bobberColor,
+                Integer.parseInt(bobberSensitivity.getText()),
+                bitingColor, Integer.parseInt(bitingSensitivity.getText()));
+
+        fishingPlan = new FishingPlan(
+                Integer.parseInt(fishingCycleField.getText()),
+                Integer.parseInt(searchDelayField.getText()),
+                shiftLootCheckBox.isSelected(),
+                useBuffCheckBox.isSelected(),
+                Integer.parseInt(buffDurationField.getText()),
+                Integer.parseInt(buffCountField.getText()));
+
+        exitPlan = new ExitPlan(
+                timeCheckBox.isSelected(), endTime,
+                hooksCheckBox.isSelected(), Integer.parseInt(hooksField.getText()),
+                castsCheckBox.isSelected(), Integer.parseInt(castsField.getText()),
+                hoursCheckBox.isSelected(), Integer.parseInt(hoursField.getText()),
+                neverCheckBox.isSelected(),
+                buffsUsedUpCheckBox.isSelected());
     }
 }

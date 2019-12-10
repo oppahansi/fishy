@@ -12,22 +12,12 @@ public class Fisher {
 
     private ImageView bobberImage;
     private ImageView bitingImage;
-
     private Stage stage;
-    private Robot robot;
-    private Random rng;
+    private ColorSettings colorSettings;
+    private FishingPlan fishingPlan;
+    private ExitPlan exitPlan;
 
-    private int bobberColor;
-    private int bitingColor;
-    private int bobberSensitivity;
-    private int bitingSensitivity;
-    private int fishingCycle;
-    private int fishingDuration;
-    private int searchDelay;
-    private int buffDuration;
-    private int buffCount;
-    private boolean shiftLoot;
-    private boolean useBuff;
+    private Robot robot;
 
     private int buffingDelay;
 
@@ -40,65 +30,52 @@ public class Fisher {
     private int bobberX;
     private int bobberY;
     private int bitingAreaRange;
+    private int hooksCounter;
+    private int castsCounter;
 
-    public Fisher(ImageView bobberImage, ImageView bitingImage, Stage stage, int bobberColor, int bitingColor, int bobberSensitivity, int bitingSensitivity, int fishingCycle, int fishingDuration, int searchDelay, int buffDuration, int buffCount, boolean shiftLoot, boolean useBuff) {
+    public Fisher(ImageView bobberImage, ImageView bitingImage, Stage stage, ColorSettings colorSettings, FishingPlan fishingPlan, ExitPlan exitPlan) {
         this.bobberImage = bobberImage;
         this.bitingImage = bitingImage;
         this.stage = stage;
-        this.bobberColor = bobberColor;
-        this.bitingColor = bitingColor;
-        this.bobberSensitivity = bobberSensitivity;
-        this.bitingSensitivity = bitingSensitivity;
-        this.fishingCycle = fishingCycle;
-        this.fishingDuration = fishingDuration * 60 * 60 * 1000;
-        this.searchDelay = searchDelay;
-        this.buffDuration = buffDuration * 60 * 1000;
-        this.buffCount = buffCount;
-        this.shiftLoot = shiftLoot;
-        this.useBuff = useBuff;
+        this.colorSettings = colorSettings;
+        this.fishingPlan = fishingPlan;
+        this.exitPlan = exitPlan;
 
+        init();
+    }
+
+    private void init() {
         buffingDelay = 8000;
 
         fishing = false;
         biteFound = false;
-        waitingDuration = searchDelay;
+        waitingDuration = fishingPlan.getSearchDelay() + 5000;
         fishingTimer = 0;
         buffTimer = 0;
         bobberCheckTimer = 0;
         bobberX = 0;
         bobberY = 0;
         bitingAreaRange = 200;
+        hooksCounter = 0;
+        castsCounter = 0;
 
         try {
             robot = new Robot();
         } catch (AWTException e) {
             System.exit(-1);
         }
-
-        rng = new Random();
     }
 
     public void update(double delta) {
-        if (fishingDuration != 0 && fishingDuration <= delta)
-            end();
-        else
-            fishingDuration -= delta;
+        if (exitPlan.shouldExit(hooksCounter, castsCounter, fishingPlan.getBuffCount())) end();
+        if (shouldWait(delta)) return;
 
-        if (waitingDuration != 0) {
-            waitingDuration -= delta;
-
-            if (waitingDuration <= delta)
-                waitingDuration = 0;
-
-            return;
-        }
-
-        if (useBuff) {
-            if (buffCount > 0 && buffTimer == 0) {
+        if (fishingPlan.canBuff()) {
+            if (buffTimer == 0) {
                 pressBuffHotkey();
                 waitingDuration = buffingDelay;
-                buffTimer = buffDuration - 5000;
-                buffCount--;
+                buffTimer = fishingPlan.getBuffDuration();
+                fishingPlan.setBuffCount(fishingPlan.getBuffCount() - 1);
 
                 return;
             }
@@ -114,44 +91,69 @@ public class Fisher {
             }
         }
 
-
         if (!fishing) {
-            mouseGlide(Utils.getMouseScreenX(), Utils.getMouseScreenY(), (int)stage.getX() + rng.nextInt((int)stage.getWidth()) + 1, (int)stage.getY() + rng.nextInt((int)stage.getHeight()) + 1, Utils.getRandomMoveTime(), 50);
-
+            mouseGlide(Utils.getMouseScreenX(), Utils.getMouseScreenY(), Utils.getRandomStageX(stage), Utils.getRandomStageY(stage), Utils.getRandomMoveTime(), 50);
             pressFishingHotkey();
-            waitingDuration = searchDelay;
-            fishingTimer = fishingCycle;
-            bobberCheckTimer = 0;
-            fishing = true;
-
+            startFishingCycle();
             return;
         }
 
-        if (fishingTimer <= delta)
-            fishing = false;
-        else
-            fishingTimer -= delta;
-
-        if (bobberCheckTimer <= delta) {
-            findBobber();
-            bobberCheckTimer = 5000;
-        } else
-            bobberCheckTimer -= delta;
+        checkFishingCycle(delta);
+        checkBobber(delta);
 
         if (!biteFound) findBite();
-
         if (biteFound) {
             loot();
-
-            waitingDuration = 3000;
-
-            fishing = false;
-            biteFound = false;
+            resetFishingCycle();
+            hooksCounter++;
         }
     }
 
     public void end() {
         System.exit(1);
+    }
+
+    private boolean shouldWait(double delta) {
+        if (waitingDuration != 0) {
+            waitingDuration -= delta;
+
+            if (waitingDuration <= delta)
+                waitingDuration = 0;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private void startFishingCycle() {
+        waitingDuration = fishingPlan.getSearchDelay();
+        fishingTimer = fishingPlan.getFishingCycle();
+        bobberCheckTimer = 0;
+        fishing = true;
+        castsCounter++;
+    }
+
+    private void checkFishingCycle(double delta) {
+        if (fishingTimer <= delta)
+            fishing = false;
+        else
+            fishingTimer -= delta;
+    }
+
+    private void checkBobber(double delta) {
+        if (bobberCheckTimer <= delta) {
+            findBobber();
+            bobberCheckTimer = 5000;
+        } else
+            bobberCheckTimer -= delta;
+    }
+
+    private void resetFishingCycle() {
+        waitingDuration = fishingPlan.getSearchDelay();
+        bobberCheckTimer = 0;
+        fishing = false;
+        biteFound = false;
     }
 
     private void pressFishingHotkey() {
@@ -172,9 +174,9 @@ public class Fisher {
         for (int x = 0; x < fishingArea.getWidth(); x++) {
             for (int y = 0; y < fishingArea.getHeight(); y++) {
                 int currentColor = fishingArea.getRGB(x, y);
-                double diff = (double)Math.abs(Math.abs(bobberColor) - Math.abs(currentColor)) / (double)Math.abs(bobberColor) * 100.0;
+                double diff = (double)Math.abs(Math.abs(colorSettings.getBobberColor()) - Math.abs(currentColor)) / (double)Math.abs(colorSettings.getBobberColor()) * 100.0;
 
-                if (diff <= bobberSensitivity) {
+                if (diff <= colorSettings.getBobberSensitivity()) {
                     bobberX = x;
                     bobberY = y;
                     BufferedImage bobberArea = getBobberArea();
@@ -195,9 +197,9 @@ public class Fisher {
         for (int x = 0; x < fishingArea.getWidth(); x++) {
             for (int y = 0; y < fishingArea.getHeight(); y++) {
                 int currentColor = fishingArea.getRGB(x, y);
-                double diff = (double)Math.abs(Math.abs(bitingColor) - Math.abs(currentColor)) / (double)Math.abs(bitingColor) * 100.0;
+                double diff = (double)Math.abs(Math.abs(colorSettings.getBitingColor()) - Math.abs(currentColor)) / (double)Math.abs(colorSettings.getBitingColor()) * 100.0;
 
-                if (diff <= bitingSensitivity) {
+                if (diff <= colorSettings.getBitingSensitivity()) {
                     biteFound = true;
                     mouseGlide(Utils.getMouseScreenX(), Utils.getMouseScreenY(), (int)stage.getX() + x, (int)stage.getY() + y, Utils.getRandomMoveTime(), 50);
                     waitingDuration = 500;
@@ -208,13 +210,13 @@ public class Fisher {
     }
 
     private void loot() {
-        if (shiftLoot) robot.keyPress(16);
+        if (fishingPlan.isShiftLoot()) robot.keyPress(16);
         robot.delay(75);
         robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
         robot.delay(75);
         robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
         robot.delay(75);
-        if (shiftLoot) robot.keyRelease(16);
+        if (fishingPlan.isShiftLoot()) robot.keyRelease(16);
     }
 
     public void mouseGlide(int x1, int y1, int x2, int y2, int t, int n) {

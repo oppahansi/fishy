@@ -1,5 +1,6 @@
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.ImageView;
+import javafx.stage.Stage;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -60,5 +61,15 @@ class Utils {
 
     static int getRandomMoveTime() {
         return ThreadLocalRandom.current().nextInt(500, 800 + 1);
+    }
+
+    static int getRandomStageX(Stage stage) {
+        Random rng = new Random();
+        return (int)stage.getX() + rng.nextInt((int)stage.getWidth()) + 1;
+    }
+
+    static int getRandomStageY(Stage stage) {
+        Random rng = new Random();
+        return (int)stage.getY() + rng.nextInt((int)stage.getHeight()) + 1;
     }
 }
