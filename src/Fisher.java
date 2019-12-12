@@ -68,7 +68,12 @@ public class Fisher {
 
     public void update(double delta) {
         if (exitPlan.shouldExit(hooksCounter, castsCounter, fishingPlan.getBuffCount())) end();
-        if (shouldWait(delta)) return;
+        if (shouldWait(delta)) {
+            if (fishingPlan.isUseBuff())
+                updateBuffTimer(delta);
+
+            return;
+        }
 
         if (fishingPlan.canBuff()) {
             if (buffTimer == 0) {
@@ -80,14 +85,11 @@ public class Fisher {
                 return;
             }
 
-            if (buffTimer > 0) {
-                buffTimer -= delta;
+            updateBuffTimer(delta);
 
-                if (buffTimer <= delta) {
-                    buffTimer = 0;
-                    fishing = false;
-                    return;
-                }
+            if (buffTimer == 0) {
+                fishing = false;
+                return;
             }
         }
 
@@ -166,6 +168,16 @@ public class Fisher {
         robot.keyPress(50);
         robot.delay(75);
         robot.keyRelease(50);
+    }
+
+    private void updateBuffTimer(double delta) {
+        if (buffTimer > 0) {
+            buffTimer -= delta;
+
+            if (buffTimer <= delta) {
+                buffTimer = 0;
+            }
+        }
     }
 
     private void findBobber() {

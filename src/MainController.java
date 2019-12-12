@@ -41,7 +41,6 @@ public class MainController {
     public TextField sampleHotkey;
     public TextField bobberColorHotkey;
     public TextField biteColorHotkey;
-    public TextField fishingDurationField;
     public TextField searchDelayField;
     public CheckBox useBuffCheckBox;
     public CheckBox shiftLootCheckBox;
